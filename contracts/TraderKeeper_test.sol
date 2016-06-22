@@ -76,8 +76,8 @@ contract TraderKeeperTest is Test {
         buyer.doApprove(token2, initial_balance_buyer_t2);
         seller.doApprove(token1, initial_balance_seller_t1);
         seller.doApprove(token2, initial_balance_seller_t2);
-        bid_id_first = buyer.doOffer(40, token1, 10, token2);
-        ask_id_first = seller.doOffer(10, token2, 20, token1);
+        bid_id_first = buyer.doOffer(10, token1, 40, token2);
+        ask_id_first = seller.doOffer(20, token2, 10, token1);
     }
     
     function testSetUp() {
@@ -93,6 +93,28 @@ contract TraderKeeperTest is Test {
         assertEq(token2.balanceOf(seller), initial_balance_seller_t2 - seller_token2_ask);
         assertEq(bid_id_first, 1);
         assertEq(ask_id_first, 2);*/
+    }
+    
+    function testQuantities() {
+        var bid_buy_how_much = 2000000000000000000;
+        var bid_sell_how_much = 600000000000000000;
+        var ask_buy_how_much = 400000000000000000;
+        var ask_sell_how_much = 2000000000000000000;
+        var balance = 26000000000000000000;
+        var (ask_quantity, bid_quantity) = keeper.determineTradeQuantity(bid_buy_how_much, bid_sell_how_much, ask_buy_how_much,
+        ask_sell_how_much, balance);
+        //assertEq(ask_quantity, 0);
+        //assertEq(bid_quantity, 0);
+    }
+    
+    function testDivision1() {
+        var result = keeper.division(8, 2);
+        assertEq(result, 4);
+    }
+    
+    function testDivision2() {
+        var result = keeper.division(9,2);
+        assertEq(result, 4);
     }
     
     function testDeposit() {
@@ -121,11 +143,11 @@ contract TraderKeeperTest is Test {
     function testFailIsOwner() {
         buyer.doWithdraw(token1, 100, keeper);
     }   
-    
+    /*
     function testTrade() {
         keeper.trade(bid_id_first, ask_id_first, token2, token1, simple_market);
     }
-    /*
+    
     function testFailTradeBuy() {
         keeper.trade(0, ask_id_first, token2, token1, simple_market);
     }
