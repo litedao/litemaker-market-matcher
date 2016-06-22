@@ -28,7 +28,7 @@ contract KeeperTester is Tester {
     }
 }
 
-contract TraderKeeperTest is Test {
+contract TraderKeeperTest is Test, EventDefinitions {
     TraderKeeper keeper;
     KeeperTester buyer;
     KeeperTester seller;
