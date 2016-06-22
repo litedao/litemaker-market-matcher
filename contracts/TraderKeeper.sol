@@ -46,8 +46,8 @@ contract TraderKeeper is Assertive {
         
         assert(maker_address.buyPartial(ask_id, ask_quantity));
         
-        //var bid_total_price = (bid_buy_how_much / bid_sell_how_much) * bid_quantity;
-        buying.approve(maker_address, (bid_buy_how_much / bid_sell_how_much) * bid_quantity);
+        var bid_total_price = (bid_buy_how_much / bid_sell_how_much) * bid_quantity;
+        //buying.approve(maker_address, (bid_buy_how_much / bid_sell_how_much) * bid_quantity);
         
         checkBalanceAndAllowance(bid_buy_how_much, bid_sell_how_much, bid_quantity, buying, maker_address);
         
@@ -71,6 +71,7 @@ contract TraderKeeper is Assertive {
     }
     
     function determineTradeQuantity(uint bid_buy_how_much, uint bid_sell_how_much, uint ask_buy_how_much, uint ask_sell_how_much, uint balance) constant returns (uint askQuantity, uint bidQuantity) {
+        //@info bid_buy_how_much `uint bid_buy_how_much` and bid_sell_how_much `uint bid_sell_how_much` and ask_buy_how_much `uint ask_buy_how_much` and ask_sell_how_much `uint ask_sell_how_much` and balance `uint balance`
         var minimum_ask_bid = minimum(bid_buy_how_much, ask_sell_how_much);
         //@info minimum_ask_bid `uint minimum_ask_bid`                
         var amount_before_balance = minimum_ask_bid * (ask_buy_how_much / ask_sell_how_much);
