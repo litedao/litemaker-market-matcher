@@ -46,8 +46,9 @@ contract TraderKeeper is Assertive {
         
         assert(maker_address.buyPartial(ask_id, ask_quantity));
         
-        var bid_total_price = (bid_buy_how_much / bid_sell_how_much) * bid_quantity;
-        //buying.approve(maker_address, (bid_buy_how_much / bid_sell_how_much) * bid_quantity);
+        var bid_total_price = bid_quantity / (bid_sell_how_much / bid_buy_how_much);
+        //@info bid_total_price `uint bid_total_price`
+        buying.approve(maker_address, bid_total_price);
         
         checkBalanceAndAllowance(bid_buy_how_much, bid_sell_how_much, bid_quantity, buying, maker_address);
         
