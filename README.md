@@ -28,4 +28,5 @@ Transfer tokens to the keeper contract to trade with.
 Start the Keeper by running `node keeper.js` 
 
 ## Running tests
-Run dapple test
+Run `dapple test`
+
