@@ -2,23 +2,12 @@ import 'maker-otc/simple_market.sol';
 import 'maker-otc/assertive.sol';
 import 'erc20/erc20.sol';
 
-contract EventDefinitions {
-    event info(bytes data);
-    event warn(bytes data);
-}
-
-contract TraderKeeper is Assertive, EventDefinitions {
+contract TraderKeeper is Assertive {
     
     address owner;
-    event TradeUpdate( uint id );
     
     function TraderKeeper () {
         owner = msg.sender;
-    }
-    
-    function fire() {
-        info("ok");
-        warn("warning");
     }
     
     function withdraw(ERC20 token, uint token_amount) {
@@ -43,9 +32,12 @@ contract TraderKeeper is Assertive, EventDefinitions {
     function trade(uint bid_id, uint ask_id, ERC20 buying, ERC20 selling, SimpleMarket maker_address) {
         assert(msg.sender == owner);
         
-        var (bid_buy_how_much, bid_sell_how_much) = getOffer(bid_id, maker_address);
-        var (ask_buy_how_much, ask_sell_how_much) = getOffer(ask_id, maker_address);        
+        var (bid_sell_how_much, bid_buy_how_much) = getOffer(bid_id, maker_address);
+        //@info bid_buy_how_much `uint bid_buy_how_much` and bid_sell_how_much `uint bid_sell_how_much`        
+        var (ask_sell_how_much, ask_buy_how_much) = getOffer(ask_id, maker_address);        
+        //@info ask_buy_how_much `uint ask_buy_how_much` and ask_sell_how_much `uint ask_sell_how_much`        
         var (ask_quantity, bid_quantity) = determineTradeQuantity(bid_buy_how_much, bid_sell_how_much, ask_buy_how_much, ask_sell_how_much, balanceOf(buying));
+        //@info bidquantity `uint bid_quantity` and askquantity `uint ask_quantity`
         //Check if the keeper has enough balance for the trades
         //var ask_total_price = (ask_buy_how_much / ask_sell_how_much) * ask_quantity; 
         selling.approve(maker_address, (ask_buy_how_much / ask_sell_how_much) * ask_quantity);
@@ -80,9 +72,13 @@ contract TraderKeeper is Assertive, EventDefinitions {
     
     function determineTradeQuantity(uint bid_buy_how_much, uint bid_sell_how_much, uint ask_buy_how_much, uint ask_sell_how_much, uint balance) constant returns (uint askQuantity, uint bidQuantity) {
         var minimum_ask_bid = minimum(bid_buy_how_much, ask_sell_how_much);
+        //@info minimum_ask_bid `uint minimum_ask_bid`                
         var amount_before_balance = minimum_ask_bid * (ask_buy_how_much / ask_sell_how_much);
+        //@info amount_before_balance `uint amount_before_balance`                
         var amount = minimum(balance, amount_before_balance);
+        //@info amount `uint amount`                
         var ask_quantity = minimum_ask_bid * (amount / amount_before_balance);
+        //@info ask_quantity `uint ask_quantity`                
         return (ask_quantity, ask_quantity * (bid_sell_how_much / bid_buy_how_much));
     }
     
