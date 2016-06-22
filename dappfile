@@ -4,7 +4,8 @@ layout:
   sol_sources: contracts
   build_dir: build
 dependencies:
-  maker-otc: 0.1.0
+  erc20: 1.0.0
+  maker-otc: 0.2.0
 environments:
   default: morden
   morden:

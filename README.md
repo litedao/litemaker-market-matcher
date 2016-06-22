@@ -1,5 +1,7 @@
 # Maker Market Matcher
 
+[![Build Status](https://api.travis-ci.org/MakerDAO/maker-market-matcher.svg?branch=master)](https://travis-ci.org/MakerDAO/maker-market-matcher)
+
 ## Intro/background
 Keepers are defined in the [Maker white paper](https://makerdao.github.io/docs/#how-external-agents-assist-maker) as a class of agents that systematically earn an income from Maker and the Dai by exploiting simple profit opportunities.  Keepers are vital to Maker by participating in continuous splitting auctions, market making the dai around the target price and providing external information such as price feeds to Maker. The Maker Market Matcher is a Keeper that performs automatic trading, matching bids against asks when the bid price is higher than the ask price.
 
@@ -26,4 +28,5 @@ Transfer tokens to the keeper contract to trade with.
 Start the Keeper by running `node keeper.js` 
 
 ## Running tests
-Run dapple test
+Run `dapple test`
+
