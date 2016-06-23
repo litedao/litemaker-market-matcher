@@ -36,14 +36,14 @@ contract TraderKeeperTest is Test {
     ERC20 token2;
     SimpleMarket simple_market;
     
-    uint constant initial_balance_t1 = 10000;
-    uint constant initial_balance_t2 = 50000;
+    uint constant initial_balance_t1 = 1600000000000000000000;
+    uint constant initial_balance_t2 = 1200000000000000000000;
     uint constant initial_balance_keeper_t1 = 5000;
     uint constant initial_balance_keeper_t2 = 20000;
-    uint constant initial_balance_buyer_t1 = 2000;
-    uint constant initial_balance_buyer_t2 = 10000;
-    uint constant initial_balance_seller_t1 = 2000;
-    uint constant initial_balance_seller_t2 = 10000;
+    uint constant initial_balance_buyer_t1 = 600000000000000000;
+    uint constant initial_balance_buyer_t2 = 2000000000000000000;
+    uint constant initial_balance_seller_t1 = 400000000000000000;
+    uint constant initial_balance_seller_t2 = 2000000000000000000;
     uint constant buyer_token1_bid = 100;
     uint constant seller_token2_ask = 1000;
     uint bid_id_first;
@@ -76,8 +76,10 @@ contract TraderKeeperTest is Test {
         buyer.doApprove(token2, initial_balance_buyer_t2);
         seller.doApprove(token1, initial_balance_seller_t1);
         seller.doApprove(token2, initial_balance_seller_t2);
-        bid_id_first = buyer.doOffer(10, token1, 40, token2);
-        ask_id_first = seller.doOffer(20, token2, 10, token1);
+        //bid_id_first = buyer.doOffer(10, token1, 40, token2);
+        //ask_id_first = seller.doOffer(20, token2, 10, token1);
+        bid_id_first = buyer.doOffer(600000000000000000, token1, 2000000000000000000, token2);
+        ask_id_first = seller.doOffer(2000000000000000000, token2, 400000000000000000, token1);
     }
     
     function testSetUp() {
@@ -103,24 +105,24 @@ contract TraderKeeperTest is Test {
         var balance = 26000000000000000000;
         var (ask_quantity, bid_quantity) = keeper.determineTradeQuantity(bid_buy_how_much, bid_sell_how_much, ask_buy_how_much,
         ask_sell_how_much, balance);
-        //assertEq(ask_quantity, 0);
-        //assertEq(bid_quantity, 0);
+        assertEq(ask_quantity, 2000000000000000000);
+        assertEq(bid_quantity, 600000000000000000);
     }
     
     function testGetBuyHowMuch() {
         var result = keeper.getBuyHowMuch(1, simple_market);
-        assertEq(result, 40);
+        assertEq(result, 2000000000000000000);
     }
     
     function testGetSellHowMuch() {
         var result = keeper.getSellHowMuch(1, simple_market);
-        assertEq(result, 10); 
+        assertEq(result, 600000000000000000); 
     }
     
     function testOffer() {
         var (sell_how_much, buy_how_much) = keeper.getOffer(1, simple_market);
-        assertEq(buy_how_much, 40);
-        assertEq(sell_how_much, 10); 
+        assertEq(buy_how_much, 2000000000000000000);
+        assertEq(sell_how_much, 600000000000000000); 
     }
     
     function testDeposit() {
@@ -149,11 +151,11 @@ contract TraderKeeperTest is Test {
     function testFailIsOwner() {
         buyer.doWithdraw(token1, 100, keeper);
     }   
-    /*
+    
     function testTrade() {
         keeper.trade(bid_id_first, ask_id_first, token2, token1, simple_market);
     }
-    
+    /*
     function testFailTradeBuy() {
         keeper.trade(0, ask_id_first, token2, token1, simple_market);
     }

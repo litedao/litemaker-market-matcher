@@ -14,12 +14,12 @@ var asks = []
 
 //TODO Check arguments whether to start keeper, deposit/withdraw tokens or check the balance
 
-//startKeeper()
-getOfferInfo()
+startKeeper()
+//getOfferInfo()
 //showBalance()
 
 function getOfferInfo() {
-    Dapple.objects.matcher.getOffer(11, Dapple.objects.matcher.address, function(error, result) {
+    Dapple.objects.matcher.getOffer(11, Dapple.objects.otc.address, function(error, result) {
         if(!error) {
             console.log('GetOffer keeper: ' + result[0].toString())
             console.log(result)
@@ -39,7 +39,7 @@ function getOfferInfo() {
         }
     });
     
-    Dapple.objects.matcher.getBuyHowMuch(11, Dapple.objects.matcher.address, function(error, result) {
+    Dapple.objects.matcher.getBuyHowMuch(11, Dapple.objects.otc.address, function(error, result) {
         if(!error) {
             console.log('GetBuyHowMuch: ' + result.toString())
             console.log(result)
@@ -163,9 +163,9 @@ function trade() {
     console.log('trade called')
     //TODO-FP take gas costs into account
     if(bids[0] != null && asks[0] != null && bids[0].price > asks[0].price) {
-        console.log('Call trade: ', bids[0].id, asks[0].id, bids[0].buy_how_much, bids[0].buy_which_token, bids[0].sell_which_token, Dapple.objects.matcher.address)
+        console.log('Call trade: ', bids[0].id, asks[0].id, bids[0].buy_how_much, bids[0].buy_which_token, bids[0].sell_which_token, Dapple.objects.otc.address)
         
-        Dapple.objects.matcher.trade(bids[0].id, asks[0].id, bids[0].buy_which_token, bids[0].sell_which_token, Dapple.objects.matcher.address, {gas: config.trade_gas_costs }, function(fail, result) {
+        Dapple.objects.matcher.trade(bids[0].id, asks[0].id, bids[0].buy_which_token, bids[0].sell_which_token, Dapple.objects.otc.address, {gas: config.trade_gas_costs }, function(fail, result) {
             if(!fail) {
                 console.log(result)
             }

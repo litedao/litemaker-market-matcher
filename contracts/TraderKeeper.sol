@@ -38,14 +38,10 @@ contract TraderKeeper is Assertive {
     function trade(uint bid_id, uint ask_id, ERC20 buying, ERC20 selling, SimpleMarket maker_address) {
         assert(msg.sender == owner);
         
-        //var (bid_sell_how_much, bid_buy_how_much) = getOffer(bid_id, maker_address);
-        var bid_buy_how_much = getBuyHowMuch(bid_id, maker_address);
-        var bid_sell_how_much = getSellHowMuch(bid_id, maker_address);
+        var (bid_sell_how_much, bid_buy_how_much) = getOffer(bid_id, maker_address);
         OfferProperties(bid_sell_how_much, bid_buy_how_much);
         //@info bid_buy_how_much `uint bid_buy_how_much` and bid_sell_how_much `uint bid_sell_how_much`        
-        //var (ask_sell_how_much, ask_buy_how_much) = getOffer(ask_id, maker_address);
-        var ask_buy_how_much = getBuyHowMuch(bid_id, maker_address);
-        var ask_sell_how_much = getSellHowMuch(bid_id, maker_address);
+        var (ask_sell_how_much, ask_buy_how_much) = getOffer(ask_id, maker_address);
         OfferProperties(ask_sell_how_much, ask_buy_how_much);        
         //@info ask_buy_how_much `uint ask_buy_how_much` and ask_sell_how_much `uint ask_sell_how_much`        
         var (ask_quantity, bid_quantity) = determineTradeQuantity(bid_buy_how_much, bid_sell_how_much, ask_buy_how_much, ask_sell_how_much, balanceOf(buying));
@@ -65,11 +61,11 @@ contract TraderKeeper is Assertive {
         
         checkBalanceAndAllowance(bid_buy_how_much, bid_sell_how_much, bid_quantity, buying, maker_address);
         
-        assert(maker_address.buyPartial(bid_id, bid_quantity));
+        assert(maker_address.buyPartial(bid_id, bid_quantity));*/
     }
     
     function checkBalanceAndAllowance(uint buy_how_much, uint sell_how_much, uint quantity, ERC20 token, SimpleMarket maker_address) {
-        var total_price = buy_how_much / sell_how_much * quantity;
+        var total_price = quantity * buy_how_much / sell_how_much;
         var balance = balanceOf(token);
         assert(balance >= total_price);
         
