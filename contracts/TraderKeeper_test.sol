@@ -38,8 +38,8 @@ contract TraderKeeperTest is Test {
     
     uint constant initial_balance_t1 = 1600000000000000000000;
     uint constant initial_balance_t2 = 1200000000000000000000;
-    uint constant initial_balance_keeper_t1 = 5000;
-    uint constant initial_balance_keeper_t2 = 20000;
+    uint constant initial_balance_keeper_t1 = 600000000000000000;
+    uint constant initial_balance_keeper_t2 = 2000000000000000000;
     uint constant initial_balance_buyer_t1 = 600000000000000000;
     uint constant initial_balance_buyer_t2 = 2000000000000000000;
     uint constant initial_balance_seller_t1 = 400000000000000000;

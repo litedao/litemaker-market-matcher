@@ -117,7 +117,6 @@ function watchForUpdates() {
             console.log(result)
             var id = result.args.id.toNumber()
             synchronizeOffer(id)
-            trade()
         }
     })
 }

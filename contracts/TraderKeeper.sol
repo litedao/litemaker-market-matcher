@@ -61,10 +61,11 @@ contract TraderKeeper is Assertive {
         
         checkBalanceAndAllowance(bid_buy_how_much, bid_sell_how_much, bid_quantity, buying, maker_address);
         
-        assert(maker_address.buyPartial(bid_id, bid_quantity));*/
+        assert(maker_address.buyPartial(bid_id, bid_quantity));
     }
     
     function checkBalanceAndAllowance(uint buy_how_much, uint sell_how_much, uint quantity, ERC20 token, SimpleMarket maker_address) {
+        //@info buy_how_much `uint buy_how_much` sell_how_much `uint sell_how_much` quantity `uint quantity`
         var total_price = quantity * buy_how_much / sell_how_much;
         var balance = balanceOf(token);
         assert(balance >= total_price);
