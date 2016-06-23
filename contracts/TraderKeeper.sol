@@ -38,10 +38,14 @@ contract TraderKeeper is Assertive {
     function trade(uint bid_id, uint ask_id, ERC20 buying, ERC20 selling, SimpleMarket maker_address) {
         assert(msg.sender == owner);
         
-        var (bid_sell_how_much, bid_buy_how_much) = getOffer(bid_id, maker_address);
+        //var (bid_sell_how_much, bid_buy_how_much) = getOffer(bid_id, maker_address);
+        var bid_buy_how_much = getBuyHowMuch(bid_id, maker_address);
+        var bid_sell_how_much = getSellHowMuch(bid_id, maker_address);
         OfferProperties(bid_sell_how_much, bid_buy_how_much);
         //@info bid_buy_how_much `uint bid_buy_how_much` and bid_sell_how_much `uint bid_sell_how_much`        
-        var (ask_sell_how_much, ask_buy_how_much) = getOffer(ask_id, maker_address);
+        //var (ask_sell_how_much, ask_buy_how_much) = getOffer(ask_id, maker_address);
+        var ask_buy_how_much = getBuyHowMuch(bid_id, maker_address);
+        var ask_sell_how_much = getSellHowMuch(bid_id, maker_address);
         OfferProperties(ask_sell_how_much, ask_buy_how_much);        
         //@info ask_buy_how_much `uint ask_buy_how_much` and ask_sell_how_much `uint ask_sell_how_much`        
         var (ask_quantity, bid_quantity) = determineTradeQuantity(bid_buy_how_much, bid_sell_how_much, ask_buy_how_much, ask_sell_how_much, balanceOf(buying));
@@ -73,6 +77,16 @@ contract TraderKeeper is Assertive {
         if(allowance < total_price) {
             token.approve(maker_address, total_price);
         }
+    }
+    
+    function getSellHowMuch(uint id, SimpleMarket maker_address) constant returns (uint) {
+        var (sell_how_much, sell_which_token, buy_how_much, buy_which_token) = maker_address.getOffer(id);
+        return sell_how_much;
+    }
+    
+    function getBuyHowMuch(uint id, SimpleMarket maker_address) constant returns (uint) {
+        var (sell_how_much, sell_which_token, buy_how_much, buy_which_token) = maker_address.getOffer(id);
+        return buy_how_much;
     }
     
     function getOffer(uint id, SimpleMarket maker_address) constant returns (uint, uint) {

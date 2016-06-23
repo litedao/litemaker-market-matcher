@@ -107,14 +107,20 @@ contract TraderKeeperTest is Test {
         //assertEq(bid_quantity, 0);
     }
     
-    function testDivision1() {
-        var result = keeper.division(8, 2);
-        assertEq(result, 4);
+    function testGetBuyHowMuch() {
+        var result = keeper.getBuyHowMuch(1, simple_market);
+        assertEq(result, 40);
     }
     
-    function testDivision2() {
-        var result = keeper.division(9,2);
-        assertEq(result, 4);
+    function testGetSellHowMuch() {
+        var result = keeper.getSellHowMuch(1, simple_market);
+        assertEq(result, 10); 
+    }
+    
+    function testOffer() {
+        var (sell_how_much, buy_how_much) = keeper.getOffer(1, simple_market);
+        assertEq(buy_how_much, 40);
+        assertEq(sell_how_much, 10); 
     }
     
     function testDeposit() {

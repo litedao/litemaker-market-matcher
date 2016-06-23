@@ -21,7 +21,27 @@ getOfferInfo()
 function getOfferInfo() {
     Dapple.objects.matcher.getOffer(11, Dapple.objects.matcher.address, function(error, result) {
         if(!error) {
-            console.log(result[0].toString())
+            console.log('GetOffer keeper: ' + result[0].toString())
+            console.log(result)
+        } 
+        else {
+            console.log('Error: ', error)
+        }
+    });
+    
+    Dapple.objects.otc.getOffer(11, function(error, result) {
+        if(!error) {
+            console.log('GetOffer maker: ' + result[0].toString())
+            console.log(result)
+        } 
+        else {
+            console.log('Error: ', error)
+        }
+    });
+    
+    Dapple.objects.matcher.getBuyHowMuch(11, Dapple.objects.matcher.address, function(error, result) {
+        if(!error) {
+            console.log('GetBuyHowMuch: ' + result.toString())
             console.log(result)
         } 
         else {
