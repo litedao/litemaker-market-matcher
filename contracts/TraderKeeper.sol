@@ -30,10 +30,6 @@ contract TraderKeeper is Assertive {
         token.approve(maker_address, amount);
     }
     
-    function division(uint a, uint b) constant returns (int) {
-        return int(a / b);
-    }
-    
     //initially only the amount that was bought can be sold, so quantity is the same for bid/ask
     function trade(uint bid_id, uint ask_id, ERC20 buying, ERC20 selling, SimpleMarket maker_address) {
         assert(msg.sender == owner);
@@ -74,16 +70,6 @@ contract TraderKeeper is Assertive {
         if(allowance < total_price) {
             token.approve(maker_address, total_price);
         }
-    }
-    
-    function getSellHowMuch(uint id, SimpleMarket maker_address) constant returns (uint) {
-        var (sell_how_much, sell_which_token, buy_how_much, buy_which_token) = maker_address.getOffer(id);
-        return sell_how_much;
-    }
-    
-    function getBuyHowMuch(uint id, SimpleMarket maker_address) constant returns (uint) {
-        var (sell_how_much, sell_which_token, buy_how_much, buy_which_token) = maker_address.getOffer(id);
-        return buy_how_much;
     }
     
     function getOffer(uint id, SimpleMarket maker_address) constant returns (uint, uint) {

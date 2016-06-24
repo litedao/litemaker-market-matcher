@@ -109,16 +109,6 @@ contract TraderKeeperTest is Test {
         assertEq(bid_quantity, 600000000000000000);
     }
     
-    function testGetBuyHowMuch() {
-        var result = keeper.getBuyHowMuch(1, simple_market);
-        assertEq(result, 2000000000000000000);
-    }
-    
-    function testGetSellHowMuch() {
-        var result = keeper.getSellHowMuch(1, simple_market);
-        assertEq(result, 600000000000000000); 
-    }
-    
     function testOffer() {
         var (sell_how_much, buy_how_much) = keeper.getOffer(1, simple_market);
         assertEq(buy_how_much, 2000000000000000000);
