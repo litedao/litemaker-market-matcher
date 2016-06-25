@@ -12,25 +12,40 @@ var offers = []
 var bids = []
 var asks = []
 
-//TODO Check arguments whether to start keeper, deposit/withdraw tokens or check the balance
-
 startKeeper()
-//getOfferInfo()
-//showBalance()
 
 function startKeeper() {
     console.log('Maker market matcher started!')
+    Dapple.objects.matcher.balanceOf(config.quote_currency.address, function(error, result) {
+        if(!error) {
+            var balance = result.toNumber()
+            if(balance != undefined && balance > 0) {
+                console.log('Balance: ' + balance + ' ' + config.quote_currency.name)
+                startSynchronization()
+            }
+            else {
+                console.log('Insufficient balance')
+                process.exit(1)
+            }
+        } 
+        else {
+            console.log('Startup error: ', error)
+            process.exit(1)
+        }
+    })
+}
+
+function startSynchronization() {
     Dapple.objects.otc.last_offer_id(function (error, result) {
         if(!error) {
             var id = result.toNumber()
-            console.log(id)
             if(id > 0) {
                 console.log('Synchronizing offers from maker market')
                 synchronizeOffer(id, id)
             }
         }
         else {
-            console.log(error)
+            console.log('Synchronization error has occured: ' + error)
         }
     })  
     watchForUpdates()
@@ -61,7 +76,7 @@ function synchronizeOffer(offer_id, max) {
         else {
             sortOffers()            
             showActiveOffers()
-            checkQuantities()
+            tradeComplete()
             trade()
         }
     })
@@ -83,13 +98,17 @@ function watchForUpdates() {
 
 function trade() {
     console.log('Looking for possible trades')
-    //TODO-FP take gas costs into account
-    if(bids[0] != null && asks[0] != null && bids[0].price > asks[0].price) {
+    //TODO- take gas costs into account
+    if(bids[0] != null && asks[0] != null && bids[0].price > asks[0].price && !bids[0].pending && !asks[0].pending) {
+        bids[0].pending = true
+        asks[0].pending = true
         console.log('Executing trade for bid id: ', bids[0].id, ' and ask id: ', asks[0].id)
+        console.log('Current balance')
+        showBalance()
         Dapple.objects.matcher.trade(bids[0].id, asks[0].id, bids[0].buy_which_token, bids[0].sell_which_token,
          Dapple.objects.otc.address, {gas: config.trade_gas_costs }, function(error, result) {
             if(!error) {
-                console.log(result)
+                console.log('Trade executed')
             }
             else {
                 console.log('Trade error occured: ' + error)
@@ -104,22 +123,22 @@ function trade() {
 function showActiveOffers() {
     console.log('Bids')
     bids.forEach(function(offer) {
-        console.log('Id: ' + offer.id + ' Sell token: ' + offer.sell_which_token + ' Sell how much: ' + offer.sell_how_much
-        + ' Buy token: ' + offer.buy_which_token + ' Buy how much: ' + offer.buy_how_much + ' Price: ' + offer.price)
+        console.log('Id: ' + offer.id + ' Sell token: ' + config.quote_currency.name + ' Sell how much: ' + offer.sell_how_much
+        + ' Buy token: ' + config.base_currency.name + ' Buy how much: ' + offer.buy_how_much + ' Price: ' + offer.price)
     })
     console.log('Asks')
     asks.forEach(function(offer) {
-        console.log('Id: ' + offer.id + ' Sell token: ' + offer.sell_which_token + ' Sell how much: ' + offer.sell_how_much
-        + ' Buy token: ' + offer.buy_which_token + ' Buy how much: ' + offer.buy_how_much + ' Price: ' + offer.price)
+        console.log('Id: ' + offer.id + ' Sell token: ' + config.base_currency.name + ' Sell how much: ' + offer.sell_how_much
+        + ' Buy token: ' + config.quote_currency.name + ' Buy how much: ' + offer.buy_how_much + ' Price: ' + offer.price)
     })
 }
 
 function updateOffer(id, sell_how_much, sell_which_token, buy_how_much, buy_which_token, owner) {
     var price = 0
-    if(sell_which_token == config.ERC20.MKR) {
+    if(sell_which_token == config.quote_currency.address) {
         price = sell_how_much.div(buy_how_much).toNumber()
     }
-    else if(sell_which_token == config.ERC20.ETH) {
+    else if(sell_which_token == config.base_currency.address) {
         price = buy_how_much.div(sell_how_much).toNumber()
     }
     
@@ -130,85 +149,67 @@ function updateOffer(id, sell_how_much, sell_which_token, buy_how_much, buy_whic
         sell_which_token: sell_which_token,
         sell_how_much: sell_how_much.toString(10),
         buy_how_much: buy_how_much.toString(10),
-        price: price
+        price: price,
+        pending: false
     }
     
-    if(sell_which_token == config.ERC20.ETH && buy_which_token == config.ERC20.MKR) {
-        var currentOffer = asks.find(function(offer) {
-            return offer.id === newOffer.id
-        })
-        
-        if(currentOffer == null) {
-            asks.add(newOffer)    
-        }
-        else
-        {
-            currentOffer.buy_how_much = buy_how_much.toString(10)
-            currentOffer.sell_how_much = sell_how_much.toString(10)
-            currentOffer.price = newOffer.price
-        }
+    if(sell_which_token == config.base_currency.address && buy_which_token == config.quote_currency.address) {
+        insertOffer(newOffer, asks)
     }
-    else if(sell_which_token == config.ERC20.MKR && buy_which_token == config.ERC20.ETH) {
-        var currentOffer = bids.find(function(offer) {
-            return offer.id === newOffer.id
-        })
-        
-        if(currentOffer == null) {
-            bids.add(newOffer)    
-        }
-        else
-        {
-            currentOffer.buy_how_much = buy_how_much.toString(10)
-            currentOffer.sell_how_much = sell_how_much.toString(10)
-            currentOffer.price = newOffer.price
-        }
+    else if(sell_which_token == config.quote_currency.address && buy_which_token == config.base_currency.address) {
+        insertOffer(newOffer, bids)
+    }
+}
+
+function insertOffer(newOffer, offers) {
+    var currentOffer = offers.find(function(offer) {
+        return offer.id === newOffer.id
+    })
+    
+    if(currentOffer == null) {
+        offers.add(newOffer)    
+    }
+    else
+    {
+        currentOffer.buy_how_much = newOffer.buy_how_much.toString(10)
+        currentOffer.sell_how_much = newOffer.sell_how_much.toString(10)
+        currentOffer.price = newOffer.price
     }
 }
 
 function removeOffer(offer_id, sell_which_token) {
-    if(sell_which_token == config.ERC20.ETH) {
+    if(sell_which_token == config.base_currency.address) {
         asks.remove(function(offer) { return offer.id === offer_id})
     }
-    else if(sell_which_token == config.ERC20.MKR) {
+    else if(sell_which_token == config.quote_currency.address) {
         bids.remove(function(offer) { return offer.id === offer_id})
     }
 }
 
-function checkQuantities() {
-    Dapple.objects.matcher.OfferProperties(function (error, result) {
+function tradeComplete() {
+    Dapple.objects.matcher.TradeComplete(function (error, result) {
         if(!error) {
-            console.log('Offer properties')
-            console.log('Buy how much result: ' + result.args.buy_how_much.toNumber())
-            console.log('Sell how much result: ' + result.args.sell_how_much.toNumber()) 
+            console.log('Trade quantities: ' + 'ask ' + result.args.ask_quantity.toString(), ' bid ',result.args.buy_quantity.toString())
+            showBalance() 
         }
-    })
-    Dapple.objects.matcher.Quantities(function (error, result) {
-        if(!error) {
-            console.log('Quantities')
-            console.log(result.args.ask_quantity.toString(), result.args.buy_quantity.toString()) 
-        }
-    })
-    Dapple.objects.matcher.TradeQuantityParameters(function (error, result) {
-        if(!error) {
-            console.log('Trade quantity parameters')
-            console.log(result.args.bid_buy_how_much.toString(), result.args.bid_sell_how_much.toString(),
-            result.args.ask_buy_how_much, result.args.ask_sell_how_much, result.args.balance) 
+        else {
+            console.log('Trade error occured: ', error)
         }
     })
 }
 
 function showBalance() {
-    Dapple.objects.matcher.balanceOf(config.ERC20.ETH, function(error, result) {
+    Dapple.objects.matcher.balanceOf(config.quote_currency.address, function(error, result) {
         if(!error) {
-            console.log('ETH balance: ', result.toString())
+            console.log(config.quote_currency.name + ' balance: ', result.toString())
         } 
         else {
             console.log('Error: ', error)
         }
     })
-    Dapple.objects.matcher.balanceOf(config.ERC20.MKR, function(error, result) {
+    Dapple.objects.matcher.balanceOf(config.base_currency.address, function(error, result) {
         if(!error) {
-            console.log('MKR balance: ', result.toString())
+            console.log(config.base_currency.name + ' balance: ', result.toString())
         } 
         else {
             console.log('Error: ', error)
@@ -217,12 +218,10 @@ function showBalance() {
 }
 
 function sortOffers() {
-    //sort for the highest bid prices
     bids.sort(function(a,b) {
         return b.price - a.price
     })
     
-    //sort for the lowest ask price
     asks.sort(function(a,b) {
         return a.price - b.price 
     })
