@@ -15,7 +15,7 @@ environments:
         address: '0x5661e7bc2403c7cc08df539e4a8e2972ec256d11'
       matcher:
         class: TraderKeeper
-        address: '0x4d58e996b65f7fec1c8bdd4cf426ef378ba6d791'
+        address: '0xb59357b96bb4f0e360aa34af8bd4fdd3f714764b'
   live:
     objects:
       otc:
