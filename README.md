@@ -1,4 +1,4 @@
-# Maker Market Matcher
+# LiteMaker Market Matcher
 
 [![Build Status](https://api.travis-ci.org/MakerDAO/maker-market-matcher.svg?branch=master)](https://travis-ci.org/MakerDAO/maker-market-matcher)
 
